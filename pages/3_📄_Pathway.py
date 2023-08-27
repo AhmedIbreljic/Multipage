@@ -29,28 +29,41 @@ def electrical_engineering_degree():
 
     st.write("### Electrical Engineering Undergraduate Degree Courses")
 
-    df = pd.DataFrame([(year, course["Course"], course["Credits"], course["Type"]) for year, courses in degree_data.items() for course in courses],
-                      columns=["Year", "Course", "Credits", "Type"])
-    st.dataframe(df)
+    course_data = []
+    for year, courses in degree_data.items():
+        for course in courses:
+            course_data.append({"Year": year, "Course": course["Course"], "Credits": course["Credits"], "Type": course["Type"]})
+    df = pd.DataFrame(course_data)
+
+    pivot_df = df.pivot(index="Course", columns="Year", values="Credits").reset_index()
+    pivot_df.columns.name = None
+
+    # Color code the courses within the table based on their classification
+    styled_df = pivot_df.style.applymap(lambda x: "background-color: #ff9896" if x == "Math" else
+                                        "background-color: #aec7e8" if x == "EE" else
+                                        "background-color: #98df8a" if x == "Science" else
+                                        "background-color: #ffbb78" if x == "Project" else "", subset=pivot_df.columns[1:])
+
+    st.dataframe(styled_df, index=False)
 
     chart = alt.Chart(df).mark_bar().encode(
-        x=alt.X("Year:N", title="Year"),
-        y=alt.Y("sum(Credits):Q", title="Total Credits"),
+        x=alt.X("sum(Credits):Q", title="Total Credits"),
+        y=alt.Y("Course:N", title="Course"),
         color=alt.Color("Type:N", title="Course Classification",
                         scale=alt.Scale(scheme="category20")),
-        tooltip=["Year", "sum(Credits)", "Type"]
+        tooltip=["Course", "sum(Credits)", "Type"]
     ).properties(
-        title="Total Credits per Year"
+        title="Total Credits per Course"
     )
 
-    st.write("### Total Credits per Year")
+    st.write("### Total Credits per Course")
     st.altair_chart(chart, use_container_width=True)
 
 st.set_page_config(page_title="Electrical Engineering Degree", page_icon="⚡")
 st.markdown("# Electrical Engineering Degree")
 st.sidebar.header("Electrical Engineering Degree")
 st.write(
-    """This demo showcases an example of an Electrical Engineering undergraduate degree with sample courses over four years. Courses are color-coded based on their classification."""
+    """This demo showcases an example of an Electrical Engineering undergraduate degree with sample courses over four years. Courses are color-coded based on their classification. The table displays courses horizontally based on the year they belong in."""
 )
 
 electrical_engineering_degree()
