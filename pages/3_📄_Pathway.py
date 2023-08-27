@@ -57,7 +57,7 @@ st.set_page_config(page_title="Electrical Engineering Degree", page_icon="⚡")
 st.markdown("# Electrical Engineering Degree")
 st.sidebar.header("Electrical Engineering Degree")
 st.write(
-    """This demo showcases an example of an Electrical Engineering undergraduate degree with sample courses over four years. Courses are color-coded based on their classification. The table displays courses horizontally based on the year they belong in."""
+    """This demo showcases an example of an Electrical Engineeringsd undergraduate degree with sample courses over four years. Courses are color-coded based on their classification. The table displays courses horizontally based on the year they belong in."""
 )
 
 electrical_engineering_degree()
