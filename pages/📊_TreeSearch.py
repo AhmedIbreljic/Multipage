@@ -1,35 +1,40 @@
-import streamlit as st
-import time
-import numpy as np
-from utils import show_code
+import itertools
+import matplotlib.pyplot as plt
 
-def plotting_demo():
-    progress_bar = st.sidebar.progress(0)
-    status_text = st.sidebar.empty()
-    last_rows = np.random.randn(1, 1)
-    chart = st.line_chart(last_rows)
+# Constants
+TOTAL_COURSES = 45
+TOTAL_CREDITS = 126
+MAX_YEARS = 4
 
-    for i in range(1, 101):
-        new_rows = last_rows[-1, :] + np.random.randn(5, 1).cumsum(axis=0)
-        status_text.text("%i%% Complete" % i)
-        chart.add_rows(new_rows)
-        progress_bar.progress(i)
-        last_rows = new_rows
-        time.sleep(0.05)
+# Dummy course data (replace this with your actual course data)
+course_data = [
+    {"Course": f"Course {i}", "Credits": 3 + i % 3} for i in range(TOTAL_COURSES)
+]
 
-    progress_bar.empty()
+# Generate all possible combinations of courses
+combinations = []
+for r in range(1, TOTAL_COURSES + 1):
+    combinations.extend(itertools.combinations(course_data, r))
 
-    st.button("Re-run")
+# Filter valid combinations based on credit and years
+valid_combinations = [
+    combo for combo in combinations if
+    sum(course["Credits"] for course in combo) >= TOTAL_CREDITS and
+    len(combo) <= MAX_YEARS * 4
+]
 
-st.set_page_config(page_title="Plotting Demo", page_icon="📈")
-st.markdown("# Plotting Demo")
-st.sidebar.header("Plotting Demo")
-st.write(
-    """This demo illustrates a combination of plotting and animation with
-Streamlit. We're generating a bunch of random numbers in a loop for around
-5 seconds. Enjoy!"""
+# Plotting
+plt.figure(figsize=(10, 6))
+plt.scatter(
+    [len(combo) for combo in valid_combinations],
+    [sum(course["Credits"] for course in combo) for combo in valid_combinations],
+    c='blue'
 )
-
-plotting_demo()
-
-show_code(plotting_demo)
+plt.axvline(x=MAX_YEARS * 4, color='red', linestyle='--', label=f'{MAX_YEARS} Years')
+plt.axhline(y=TOTAL_CREDITS, color='green', linestyle='--', label=f'{TOTAL_CREDITS} Credits')
+plt.xlabel('Number of Courses')
+plt.ylabel('Total Credits')
+plt.title('Possible Combinations of EE Courses')
+plt.legend()
+plt.grid()
+plt.show()
