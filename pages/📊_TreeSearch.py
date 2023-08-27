@@ -1,6 +1,5 @@
 import streamlit as st
 import itertools
-import matplotlib.pyplot as plt
 
 def treesearch_demo():
     st.write("### Electrical Engineering Degree Tree Search")
@@ -26,18 +25,20 @@ def treesearch_demo():
         if total_credits >= total_credits_required and years <= max_years:
             valid_combinations.append(combo)
     
-    # Plotting
-    plt.figure(figsize=(10, 6))
-    plt.scatter([len(combo) for combo in valid_combinations],
-                [sum(course["Credits"] for course in combo) for combo in valid_combinations], c='blue')
-    plt.axvline(x=max_years * 4, color='red', linestyle='--', label=f'{max_years} Years')
-    plt.axhline(y=total_credits_required, color='green', linestyle='--', label=f'{total_credits_required} Credits')
-    plt.xlabel('Number of Courses')
-    plt.ylabel('Total Credits')
-    plt.title('Possible Combinations of EE Courses')
-    plt.legend()
-    plt.grid()
-    st.pyplot(plt)
+    # Display the plot using Streamlit's native plotting capabilities
+    chart = st.line_chart(
+        {
+            "Number of Courses": [len(combo) for combo in valid_combinations],
+            "Total Credits": [sum(course["Credits"] for course in combo) for combo in valid_combinations],
+        }
+    )
+    
+    chart.axhline(y=total_credits_required, color='green', linestyle='--', label=f'{total_credits_required} Credits')
+    chart.axvline(x=max_years * 4, color='red', linestyle='--', label=f'{max_years} Years')
+    chart.set_xlabel("Number of Courses")
+    chart.set_ylabel("Total Credits")
+    chart.set_title("Possible Combinations of EE Courses")
+    chart.legend()
     
     st.write(
         """This plot shows all possible combinations of Electrical Engineering courses for students to graduate in 4 years or less. Each point represents a combination with the number of courses on the x-axis and the total credits on the y-axis. The red dashed line represents the 4-year constraint, and the green dashed line represents the 126-credit constraint."""
