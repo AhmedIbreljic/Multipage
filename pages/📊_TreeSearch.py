@@ -1,5 +1,6 @@
 import streamlit as st
 import itertools
+import plotly.express as px
 
 def treesearch_demo():
     st.write("### Electrical Engineering Degree Tree Search")
@@ -25,21 +26,21 @@ def treesearch_demo():
         if total_credits >= total_credits_required and years <= max_years:
             valid_combinations.append(combo)
     
-    # Display the plot using Streamlit's native plotting capabilities
-    chart = st.line_chart(
-        {
-            "Number of Courses": [len(combo) for combo in valid_combinations],
-            "Total Credits": [sum(course["Credits"] for course in combo) for combo in valid_combinations],
-        }
+    # Create a Plotly figure
+    fig = px.scatter(
+        valid_combinations,
+        x=[len(combo) for combo in valid_combinations],
+        y=[sum(course["Credits"] for course in combo) for combo in valid_combinations],
+        labels={"x": "Number of Courses", "y": "Total Credits"},
+        title="Possible Combinations of EE Courses"
     )
     
-    chart.axhline(y=total_credits_required, color='green', linestyle='--', label=f'{total_credits_required} Credits')
-    chart.axvline(x=max_years * 4, color='red', linestyle='--', label=f'{max_years} Years')
-    chart.set_xlabel("Number of Courses")
-    chart.set_ylabel("Total Credits")
-    chart.set_title("Possible Combinations of EE Courses")
-    chart.legend()
+    # Add constraint lines
+    fig.add_hline(y=total_credits_required, line_dash="dash", line_color="green", name=f"{total_credits_required} Credits")
+    fig.add_vline(x=max_years * 4, line_dash="dash", line_color="red", name=f"{max_years} Years")
     
+    st.plotly_chart(fig)
+
     st.write(
         """This plot shows all possible combinations of Electrical Engineering courses for students to graduate in 4 years or less. Each point represents a combination with the number of courses on the x-axis and the total credits on the y-axis. The red dashed line represents the 4-year constraint, and the green dashed line represents the 126-credit constraint."""
     )
