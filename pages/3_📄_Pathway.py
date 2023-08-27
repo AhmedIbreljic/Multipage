@@ -1,78 +1,37 @@
-# Copyright 2018-2022 Streamlit Inc.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
 import streamlit as st
-import inspect
-import textwrap
 import pandas as pd
 import altair as alt
-from utils import show_code
 
-from urllib.error import URLError
+def electrical_engineering_degree():
+    degree_data = {
+        "Year 1": ["Mathematics", "Introduction to Electrical Engineering", "Physics"],
+        "Year 2": ["Circuit Analysis", "Digital Logic Design", "Signals and Systems"],
+        "Year 3": ["Electromagnetics", "Control Systems", "Electronics"],
+        "Year 4": ["Power Systems", "Communication Systems", "Senior Design Project"],
+    }
 
+    st.write("### Electrical Engineering Undergraduate Degree Courses")
 
-def data_frame_demo():
-    @st.experimental_memo
-    def get_UN_data():
-        AWS_BUCKET_URL = "http://streamlit-demo-data.s3-us-west-2.amazonaws.com"
-        df = pd.read_csv(AWS_BUCKET_URL + "/agri.csv.gz")
-        return df.set_index("Region")
+    degree_df = pd.DataFrame(degree_data)
+    st.dataframe(degree_df)
 
-    try:
-        df = get_UN_data()
-        countries = st.multiselect(
-            "Choose countries", list(df.index), ["China", "United States of America"]
-        )
-        if not countries:
-            st.error("Please select at least one country.")
-        else:
-            data = df.loc[countries]
-            data /= 1000000.0
-            st.write("### Gross Agricultural Production ($B)", data.sort_index())
+    melted_df = pd.melt(degree_df, var_name="Year", value_name="Course")
+    chart = alt.Chart(melted_df).mark_bar().encode(
+        x="Year:N",
+        y="count()",
+        color="Year:N",
+        column="Year:N",
+        tooltip="Course",
+    )
 
-            data = data.T.reset_index()
-            data = pd.melt(data, id_vars=["index"]).rename(
-                columns={"index": "year", "value": "Gross Agricultural Product ($B)"}
-            )
-            chart = (
-                alt.Chart(data)
-                .mark_area(opacity=0.3)
-                .encode(
-                    x="year:T",
-                    y=alt.Y("Gross Agricultural Product ($B):Q", stack=None),
-                    color="Region:N",
-                )
-            )
-            st.altair_chart(chart, use_container_width=True)
-    except URLError as e:
-        st.error(
-            """
-            **This demo requires internet access.**
-            Connection error: %s
-        """
-            % e.reason
-        )
+    st.write("### Course Distribution Over Four Years")
+    st.altair_chart(chart, use_container_width=True)
 
-
-st.set_page_config(page_title="DataFrame Demo", page_icon="📊")
-st.markdown("# DataFrame Demo")
-st.sidebar.header("DataFrame Demo")
+st.set_page_config(page_title="Electrical Engineering Degree", page_icon="⚡")
+st.markdown("# Electrical Engineering Degree")
+st.sidebar.header("Electrical Engineering Degree")
 st.write(
-    """This demo shows how to use `st.write` to visualize Pandas DataFrames.
-(Data courtesy of the [UN Data Explorer](http://data.un.org/Explorer.aspx).)"""
+    """This demo showcases an example of an Electrical Engineering undergraduate degree with sample courses over four years."""
 )
 
-data_frame_demo()
-
-show_code(data_frame_demo)
+electrical_engineering_degree()
