@@ -35,8 +35,8 @@ def electrical_engineering_degree():
             course_data.append({"Year": year, "Course": course["Course"], "Credits": course["Credits"], "Type": course["Type"]})
     df = pd.DataFrame(course_data)
     
-    pivot_df = df.pivot(index="Course", columns="Year", values=["Credits", "Type"]).reset_index()
-    pivot_df.columns = ["Course"] + [f"{year[1]} {year[0]}" for year in pivot_df.columns[1:]]
+    pivot_df = df.pivot_table(index="Course", columns="Year", values="Credits", aggfunc="first").reset_index()
+    pivot_df.columns = ["Course"] + [year for year in pivot_df.columns[1:]]
 
     st.dataframe(pivot_df, index=False)
 
